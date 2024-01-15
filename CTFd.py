@@ -56,8 +56,6 @@ def get_hint_ids(url, token, chall_id):
 
 
 def get_player_id(url, token, player_name):
-    if isinstance(player_name, int):
-        return player_name
     session = requests.Session()    
     session.headers.update({
         "Authorization": f"Token {read_file(token)[0]}"
@@ -69,6 +67,8 @@ def get_player_id(url, token, player_name):
     for p in players["data"]:
         if p["name"] == player_name:
             return p["id"]
+    if isinstance(player_name, int):
+        return player_name
 
 
 def parse(foo, bar):
@@ -193,7 +193,8 @@ def patch_flag(url, token, new_flag, challenge, old_flag):
         pprint(r.json())
 
 
-def post_challenge(url, token, name, category, description, score, prereq=None):
+def post_challenge(url, token, name, category, description, score, 
+        conn_info=None, prereq=None):
     cid = get_chall_id(url, token, name)
     if cid:
         print(f"[POST CHALLENGE]: Challenge {name} already exists.")
@@ -209,6 +210,7 @@ def post_challenge(url, token, name, category, description, score, prereq=None):
             "name": name,
             "category": category,
             "description": description,
+            "connection_info": conn_info,
             "value": score,
             "state":"visible",
             "type":"standard",
@@ -312,6 +314,23 @@ def get_scoreboard(url, token):
         headers={"Content-Type": "application/json"}
     ).json()
     return [(row['account_id'], row['name'], row['score']) for row in scoreboard['data']]
+
+
+def post_file(url, token, challenge, fname):
+    cid = get_chall_id(url, token, challenge)
+    if not cid:
+        print(f"[POST FILE]: Could not find challenge: {challenge}.")
+        return
+    session = requests.Session()    
+    session.headers.update({
+        "Authorization": f"Token {read_file(token)[0]}"
+    })    
+    r = session.post(
+        f"{url}/api/v1/files", 
+        files={"file": open(fname, mode="rb")},
+        data={"challenge_id": cid, "type": "challenge"}
+    )
+    pprint(r.json())
 
 
 def main():
