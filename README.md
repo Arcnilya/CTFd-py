@@ -43,6 +43,8 @@ This Python module is designed to interact with the CTFd platform, a popular fra
   data from the CTFd platform. It's used for monitoring the scores and
   standings of participants in real-time.
 
+- post_file: This function adds a downloadable file to an existing challenge.
+
 ## Aux Functions
 - read_file: This function reads and returns the content of a specified file.
   Mainly used for reading token files needed for authentication.
@@ -64,3 +66,6 @@ This Python module is designed to interact with the CTFd platform, a popular fra
   scoring or submissions.
 
 - parse: This function formats the hints in the get_awards function.
+
+## TODO
+- post_challenge with dynamic score
