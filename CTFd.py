@@ -8,17 +8,13 @@ from pprint import pprint
 
 DEBUG=True
 
-def read_file(fname):
-    with open(fname, "r") as fp:
-        return fp.read().splitlines()
-
 
 def get_chall_id(url, token, chall_name):
     if isinstance(chall_name, int):
         return chall_name
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     challenges = session.get(
         f"{url}/api/v1/challenges", 
@@ -32,7 +28,7 @@ def get_chall_id(url, token, chall_name):
 def get_flag_id(url, token, flag, chall_id):
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     flags = session.get(
         f"{url}/api/v1/flags", 
@@ -46,7 +42,7 @@ def get_flag_id(url, token, flag, chall_id):
 def get_hint_ids(url, token, chall_id):
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     hints = session.get(
         f"{url}/api/v1/hints", 
@@ -58,7 +54,7 @@ def get_hint_ids(url, token, chall_id):
 def get_player_id(url, token, player_name):
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     players = session.get(
         f"{url}/api/v1/users", 
@@ -85,7 +81,7 @@ def get_awards(url, token, player_name=None):
             return
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     awards = session.get(
         f"{url}/api/v1/awards", 
@@ -106,7 +102,7 @@ def get_submissions(url, token, player_name=None):
             return
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     awards = session.get(
         f"{url}/api/v1/submissions", 
@@ -126,7 +122,7 @@ def post_flag(url, token, flag, challenge):
         return
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     r = session.post(
         f"{url}/api/v1/flags", 
@@ -154,7 +150,7 @@ def delete_flag(url, token, flag, challenge):
         return
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     r = session.delete(
         f"{url}/api/v1/flags/{fid}",
@@ -176,7 +172,7 @@ def patch_flag(url, token, new_flag, challenge, old_flag):
         return
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     r = session.patch(
         f"{url}/api/v1/flags/{ofid}",
@@ -202,7 +198,7 @@ def post_challenge(url, token, name, category, description, score,
     preq = [get_chall_id(url, token, prereq)] if prereq else []
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     r = session.post(
         f"{url}/api/v1/challenges", 
@@ -233,7 +229,7 @@ def post_hint(url, token, challenge, content, cost, prereqs):
     hints = get_hint_ids(url, token, cid) if len(prereqs) > 0 else []
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     r = session.post(
         f"{url}/api/v1/hints", 
@@ -251,11 +247,38 @@ def post_hint(url, token, challenge, content, cost, prereqs):
         print("[POST HINT]:")
         pprint(r.json())
 
+def get_challenges(url, token):
+    session = requests.Session()    
+    session.headers.update({
+        "Authorization": f"Token {token}"
+    })    
+    challenges = session.get(
+        f"{url}/api/v1/challenges", 
+        headers={"Content-Type": "application/json"}
+    ).json()
+    return [p["name"] for p in challenges["data"]]
+
+
+def get_challenge_details(url, token, challenge):
+    cid = get_chall_id(url, token, challenge)
+    if not cid:
+        print(f"[POST HINT]: Could not find challenge: {challenge}.")
+        return
+    session = requests.Session()    
+    session.headers.update({
+        "Authorization": f"Token {token}"
+    })    
+    details = session.get(
+        f"{url}/api/v1/challenges/{cid}", 
+        headers={"Content-Type": "application/json"}
+    ).json()
+    return details["data"]
+
 
 def get_players(url, token):
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     players = session.get(
         f"{url}/api/v1/users", 
@@ -267,7 +290,7 @@ def get_players(url, token):
 def post_player(url, token, name, email, password, registration_code):
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     r = session.post(
         f"{url}/api/v1/users", 
@@ -291,7 +314,7 @@ def post_attempt(url, token, challenge, flag):
         return
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     r = session.post(
         f"{url}/api/v1/challenges/attempt", 
@@ -307,7 +330,7 @@ def post_attempt(url, token, challenge, flag):
 def get_scoreboard(url, token):
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     scoreboard = session.get(
         f"{url}/api/v1/scoreboard", 
@@ -323,7 +346,7 @@ def post_file(url, token, challenge, fname):
         return
     session = requests.Session()    
     session.headers.update({
-        "Authorization": f"Token {read_file(token)[0]}"
+        "Authorization": f"Token {token}"
     })    
     r = session.post(
         f"{url}/api/v1/files", 
