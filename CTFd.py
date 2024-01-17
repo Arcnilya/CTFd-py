@@ -168,7 +168,7 @@ def delete_flag(url, token, flag, challenge):
 def patch_flag(url, token, new_flag, challenge, old_flag):
     cid = get_chall_id(url, token, challenge)
     if not cid:
-        print(f"[PATCH FLAG]: Could not find challenge: {chall_name}.")
+        print(f"[PATCH FLAG]: Could not find challenge: {challenge}.")
         return
     ofid = get_flag_id(url, token, old_flag, cid)
     if not ofid:
